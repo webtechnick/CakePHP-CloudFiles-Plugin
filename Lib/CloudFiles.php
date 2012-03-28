@@ -41,7 +41,7 @@ class CloudFiles extends Object {
 	* static method to upload a file to a specific container
 	* @param string full path to file on server
 	* @param string container name to upload file to.
-	* @return mixed false if failure, or string public_uri if success
+	* @return mixed false if failure, or string public_uri if public, or true if success and not public
 	*/
 	public static function upload($file_path = null, $container = null){
 		if(empty($file_path) || empty($container)){
@@ -62,8 +62,10 @@ class CloudFiles extends Object {
 			$object = $Container->create_object($filename);
 			$object->content_type = mime_content_type($file_path);
 			$object->load_from_filename($file_path);
-	
-			return $object->public_uri();
+			if($Container->is_public()){
+				return $object->public_uri();
+			}
+			return true;
 		}
 		return false;
 	}
