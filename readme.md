@@ -11,6 +11,9 @@ This plugin is used to interface with the Rackspace CloudFiles service.
 
 ## Setup
 
+`git submodule init`
+`git submodule update`
+
 ## Configuration
 
 ## Usage
