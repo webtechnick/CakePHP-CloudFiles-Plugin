@@ -64,7 +64,24 @@ List files in a specified container on rackspace
 	App::uses('CloudFiles','CloudFiles.Lib');
 	//Get all files in container
 	$files = CloudFiles::ls('container_name');
+	
 	//Get files in subfolder
-	$files = CloudFiles::ls('container_name', 'pictures/animals');
+	$files = CloudFiles::ls('container_name', array(
+		'path' => 'pictures/animals'
+	));
+	
 	//Get files starting with a prefix
-	$files = CloudFiles::ls('container_name', null, 'prefix');
+	$files = CloudFiles::ls('container_name', array(
+		'prefix' => 'cake'
+	));
+	
+	//Limit the files returned
+	$files = CloudFiles::ls('container_name', array(
+		'limit' => 10
+	));
+	
+	//Limit the files returned, starting at marker
+	$files = CloudFiles::ls('container_name', array(
+		'limit' => 10,
+		'marker' => 30
+	));

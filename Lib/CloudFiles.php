@@ -118,14 +118,15 @@ class CloudFiles extends Object {
 	
 	/**
 	* Return a list of what is in a container
-	* @param string container
-	* @param string path (optional) only return results under path 
-	* @param string prefix (optional) only return names starting with with $prefix
-	* @param int marker (optional) starting with $marker
-	* @param int limit (optional) only return $limit names
+	* @param string container (required)
+	* @param array options (optional)
+	*  - path   (string) : only return results under path
+	*  - prefix (string) : only return names starting with prefix
+	*  - marker (int)    : starting with marker
+	*  - limit  (int)    : only return limit names (default everything)
 	* @return mixed false on failure or array of string names
 	*/
-	public static function ls($container = null, $path = null, $prefix = null, $marker = null, $limit = 0){
+	public static function ls($container = null, $options = array()){
 		if(empty($container)){
 			self::error("container name is required.");
 			return false;
@@ -133,8 +134,15 @@ class CloudFiles extends Object {
 		if(!self::connect()){
 			return false;
 		}
+		$options = array_merge(array(
+			'path' => null,
+			'marker' => null,
+			'limit' => 0,
+			'prefix' => null,
+		), $options);
+		
 		$Container = self::$Connection->get_container($container);
-		return $Container->list_objects($limit, $marker, $prefix, $path);
+		return $Container->list_objects($options['limit'], $options['marker'], $options['prefix'], $options['path']);
 	}
 	
 	/**
