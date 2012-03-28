@@ -11,6 +11,11 @@ class CloudFilesTest extends CakeTestCase {
 		$this->assertTrue(!empty($retval));
 	}
 	
+	function test_delete(){
+		$retval = CloudFiles::delete('hearing_aids_thumb.png','images');
+		$this->assertTrue($retval);
+	}
+	
 	function test_upload_noexist(){
 		$retval = CloudFiles::upload(WWW_ROOT . 'img/no_exist.png','images');
 		$this->assertFalse($retval);
