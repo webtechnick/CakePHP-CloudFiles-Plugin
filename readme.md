@@ -1,12 +1,14 @@
 # Rackspace CloudFiles CakePHP Plugin
 * Author: Nick Baker
-* Version: 0.1
+* Version: 0.2
 * License: MIT
 * Website: <http://www.webtechnick.com>
 
 This plugin is used to interface with the Rackspace CloudFiles service.
 
 ## Changelog
+0.0.2: Added CloudFiles Library -- utilizing the rackspace php-cloudfiles library and implemented upload function
+	* CloudFiles::upload('/path/to/image.png','container_name');
 0.0.1: Initial Commit -- Skeleton plugin
 
 ## Installation
@@ -22,12 +24,25 @@ Ensure the plugin is loaded in `app/Config/bootstrap.php` by calling `CakePlugin
 	
 Next you'll need to configure the plugin to work with your RackSpace CloudFiles service.
 
-Update 
-
 ## Configuration
 
-TODO
+Create a file `app/Config/cloud_files.php` with the following:
+
+	$config = array(
+		'CloudFiles' => array(
+			'server' => 'US', //UK
+			'username' => 'your_username', //your username
+			'api_key' => 'API_KEY', //your api key
+		)
+	);
+
+
 
 ## Usage
 
-TODO
+Basic Usage examples
+
+### Upload
+
+	App::uses('CloudFiles','CloudFiles.Lib');
+	$cdn_url = CloudFiles::upload('/path/to/image.jpg','container_name');

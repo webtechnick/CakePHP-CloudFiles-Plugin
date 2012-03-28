@@ -1,0 +1,14 @@
+<?php
+/**
+  * CloudFiles Configuration file
+  *
+  * save the file to app/Config/cloud_files.php
+  */
+$config = array(
+  'CloudFiles' => array(
+    'server' => 'US', //UK
+    'username' => 'your_username', //your username
+    'api_key' => 'API_KEY', //your api key
+  )
+);
+?>
