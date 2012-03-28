@@ -5,6 +5,7 @@
 * @since 1.0
 */
 App::uses('CloudFiles','CloudFiles.Lib');
+App::uses('AppHelper','View/Helper');
 class CloudFilesHelper extends AppHelper {
 	
 	/**
