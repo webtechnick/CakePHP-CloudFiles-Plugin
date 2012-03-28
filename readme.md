@@ -7,9 +7,9 @@
 This plugin is used to interface with the Rackspace CloudFiles service.
 
 ## Changelog
-0.0.2: Added CloudFiles Library -- utilizing the rackspace php-cloudfiles library and implemented upload function
-	* CloudFiles::upload('/path/to/image.png','container_name');
-0.0.1: Initial Commit -- Skeleton plugin
+* 0.0.2: 	Added CloudFiles Library -- utilizing the rackspace php-cloudfiles library and implemented upload function 
+					CloudFiles::upload('/path/to/image.png','container_name');
+* 0.0.1: 	Initial Commit -- Skeleton plugin
 
 ## Installation
 
