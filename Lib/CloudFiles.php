@@ -83,7 +83,6 @@ class CloudFiles extends Object {
 			return false;
 		}
 		if(!self::connect()){
-			self::error("Unable to connect to rackspace, check your settings.");
 			return false;
 		}
 		
@@ -111,7 +110,6 @@ class CloudFiles extends Object {
 	*/
 	public static function delete($filename = null, $container = null){
 		if(!self::connect()){
-			self::error("Unable to connect to rackspace, check your settings.");
 			return false;
 		}
 		$Container = self::$Connection->get_container($container);
@@ -129,7 +127,11 @@ class CloudFiles extends Object {
 			self::$Authentication->authenticate();
 			self::$Connection = new CF_Connection(self::$Authentication);
 		}
-		return !!(self::$Connection);
+		$retval = !!(self::$Connection);
+		if(!$retval){
+			self::error("Unable to connect to rackspace, check your settings.");
+		}
+		return $retval;
 	}
 	
 	/**
