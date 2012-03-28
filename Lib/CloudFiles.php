@@ -109,6 +109,10 @@ class CloudFiles extends Object {
 	* @return boolean success
 	*/
 	public static function delete($filename = null, $container = null){
+		if(empty($file_path) || empty($container)){
+			self::error("File path and container required.");
+			return false;
+		}
 		if(!self::connect()){
 			return false;
 		}
