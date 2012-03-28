@@ -9,6 +9,7 @@ This plugin is used to interface with the Rackspace CloudFiles service.
 ## Changelog
 * 0.0.2: 	Added CloudFiles Library -- utilizing the rackspace php-cloudfiles library and implemented upload function 
 					CloudFiles::upload('/path/to/image.png','container_name');
+					CloudFiles::delete('image.png', 'container_name');
 * 0.0.1: 	Initial Commit -- Skeleton plugin
 
 ## Installation
@@ -44,5 +45,14 @@ Basic Usage examples
 
 ### Upload
 
+Uploads a local file to the specified container in rackspace
+
 	App::uses('CloudFiles','CloudFiles.Lib');
 	$cdn_url = CloudFiles::upload('/path/to/image.jpg','container_name');
+	
+### Delete
+
+Delete a file from a specific container on rackspace
+
+	App::uses('CloudFiles','CloudFiles.Lib');
+	CloudFiles::delete('image.jpg','container_name');

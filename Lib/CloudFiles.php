@@ -104,6 +104,21 @@ class CloudFiles extends Object {
 	}
 	
 	/**
+	* Delete a file from a container
+	* @param string filename to delete
+	* @param string container to delete filename from
+	* @return boolean success
+	*/
+	public static function delete($filename = null, $container = null){
+		if(!self::connect()){
+			self::error("Unable to connect to rackspace, check your settings.");
+			return false;
+		}
+		$Container = self::$Connection->get_container($container);
+		return $Container->delete_object($filename, $container);
+	}
+	
+	/**
 	* Connect to the CloudFiles Service
 	* @return boolean success
 	*/
