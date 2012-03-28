@@ -109,8 +109,8 @@ class CloudFiles extends Object {
 	* @return boolean success
 	*/
 	public static function delete($filename = null, $container = null){
-		if(empty($file_path) || empty($container)){
-			self::error("File path and container required.");
+		if(empty($filename) || empty($container)){
+			self::error("Filename and container required.");
 			return false;
 		}
 		if(!self::connect()){
@@ -147,6 +147,41 @@ class CloudFiles extends Object {
 		
 		$Container = self::$Connection->get_container($container);
 		return $Container->list_objects($options['limit'], $options['marker'], $options['prefix'], $options['path']);
+	}
+	
+	/**
+	* Get URL of an object
+	* @param string filename (required)
+	* @param string container (required)
+	* @param boolean streaming if true return streaming url instead of public URL.
+	* @return string public uri of object requested
+	*/
+	public static function url($filename = null, $container = null, $streaming = false){
+		if(empty($filename) || empty($container)){
+			self::error("Filename and container required.");
+			return false;
+		}
+		if(!self::connect()){
+			return false;
+		}
+		$Container = self::$Connection->get_container($container);
+		if(is_object($Container)){
+			$Object = $Container->get_object($filename);
+			if(is_object($Object)){
+				return $streaming ? $Object->public_streaming_uri() : $Object->public_uri();
+			}
+		}
+		return null;
+	}
+	
+	/**
+	* Get Stream URL of an object
+	* @param string filename (required)
+	* @param string container (required)
+	* @return string public stream url of object requested
+	*/
+	public static function stream($filename = null, $container = null){
+		return self::url($filename, $container, $streaming = true);
 	}
 	
 	/**
