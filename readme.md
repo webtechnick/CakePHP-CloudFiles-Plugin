@@ -56,3 +56,15 @@ Delete a file from a specific container on rackspace
 
 	App::uses('CloudFiles','CloudFiles.Lib');
 	CloudFiles::delete('image.jpg','container_name');
+	
+### List
+
+List files in a specified container on rackspace
+
+	App::uses('CloudFiles','CloudFiles.Lib');
+	//Get all files in container
+	$files = CloudFiles::ls('container_name');
+	//Get files in subfolder
+	$files = CloudFiles::ls('container_name', 'pictures/animals');
+	//Get files starting with a prefix
+	$files = CloudFiles::ls('container_name', null, 'prefix');

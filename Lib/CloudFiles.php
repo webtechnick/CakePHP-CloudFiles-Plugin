@@ -117,6 +117,27 @@ class CloudFiles extends Object {
 	}
 	
 	/**
+	* Return a list of what is in a container
+	* @param string container
+	* @param string path (optional) only return results under path 
+	* @param string prefix (optional) only return names starting with with $prefix
+	* @param int marker (optional) starting with $marker
+	* @param int limit (optional) only return $limit names
+	* @return mixed false on failure or array of string names
+	*/
+	public static function ls($container = null, $path = null, $prefix = null, $marker = null, $limit = 0){
+		if(empty($container)){
+			self::error("container name is required.");
+			return false;
+		}
+		if(!self::connect()){
+			return false;
+		}
+		$Container = self::$Connection->get_container($container);
+		return $Container->list_objects($limit, $marker, $prefix, $path);
+	}
+	
+	/**
 	* Connect to the CloudFiles Service
 	* @return boolean success
 	*/
