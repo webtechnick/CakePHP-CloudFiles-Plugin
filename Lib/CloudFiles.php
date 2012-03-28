@@ -1,19 +1,49 @@
 <?php
 /**
 * CloudFiles static library
-*
+* @author Nick Baker
+* @since 0.0.2
+* @link http://www.webtechnick.com
 */
 App::import('Vendor', 'CloudFiles.php-cloudfiles/cloudfiles');
 class CloudFiles extends Object {
 	
+	/**
+	* Configuration loaded from app/Config/cloud_files.php
+	* @var array
+	* @access public
+	*/
 	public static $configs = array();
+	
+	/**
+	* Authenticatoin object
+	* @var CF_Authentication
+	* @access public
+	*/
 	public static $Authentication = null;
+	
+	/**
+	* Connection object
+	* @var CF_Connect
+	* @access public
+	*/
 	public static $Connection = null;
+	
+	/**
+	* Shorthand server to full AuthURL
+	* @var array
+	* @access private
+	*/
 	private static $server_to_auth_map = array(
 		'US' => 'https://auth.api.rackspacecloud.com',
 		'UK' => 'https://lon.auth.api.rackspacecloud.com'
 	);
 	
+	/**
+	* Errors
+	* @var array
+	* @access public
+	*/
 	public static $errors = array();
 	
 	
@@ -41,7 +71,7 @@ class CloudFiles extends Object {
 	* static method to upload a file to a specific container
 	* @param string full path to file on server
 	* @param string container name to upload file to.
-	* @return mixed false if failure, or string public_uri if public, or true if success and not public
+	* @return mixed false if failure, string public_uri if public, or true if success and not public
 	*/
 	public static function upload($file_path = null, $container = null){
 		if(empty($file_path) || empty($container)){
@@ -75,6 +105,7 @@ class CloudFiles extends Object {
 	
 	/**
 	* Connect to the CloudFiles Service
+	* @return boolean success
 	*/
 	protected static function connect(){
 		if(self::$Connection == null && $server = self::$server_to_auth_map[self::getConfig('server')]){
