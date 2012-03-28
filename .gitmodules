@@ -1,0 +1,3 @@
+[submodule "Vendor/php-cloudfiles"]
+	path = Vendor/php-cloudfiles
+	url = git://github.com/rackspace/php-cloudfiles.git
