@@ -52,8 +52,11 @@ class CloudFiles extends Object {
 			self::error("File does not exist.");
 			return false;
 		}
+		if(!self::connect()){
+			self::error("Unable to connect to rackspace, check your settings.");
+			return false;
+		}
 		
-		self::connect(); 
 		$Container = self::$Connection->get_container($container);
 		$filename = basename($file_path);
 
@@ -80,6 +83,7 @@ class CloudFiles extends Object {
 			self::$Authentication->authenticate();
 			self::$Connection = new CF_Connection(self::$Authentication);
 		}
+		return !!(self::$Connection);
 	}
 	
 	/**
