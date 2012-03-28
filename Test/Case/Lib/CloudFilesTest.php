@@ -47,5 +47,14 @@ class CloudFilesTest extends CakeTestCase {
 		$retval = CloudFiles::url('no_exist.png', 'images');
 		$this->assertFalse($retval);
 	}
+	
+	function test_stream(){
+		$retval = CloudFiles::stream('jessica_k.png', 'images');
+		$this->assertTrue(!empty($retval));
+		
+		$this->setExpectedException('NoSuchObjectException');
+		$retval = CloudFiles::stream('no_exist.png', 'images');
+		$this->assertFalse($retval);
+	}
 }
 ?>
