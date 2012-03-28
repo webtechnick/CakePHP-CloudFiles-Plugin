@@ -4,12 +4,17 @@
 * License: MIT
 * Website: <http://www.webtechnick.com>
 
-This plugin is used to interface with the Rackspace CloudFiles service.
+This plugin is used to interface with the Rackspace CloudFiles service.  This plugin utilizes the php-cloudfiles provided by rackspace
+
+## Requirements
+
+* CakePHP 2.x, PHP 5.x
+* Any requirements defined by <https://github.com/rackspace/php-cloudfiles>
 
 ## Changelog
 * 0.0.2: 	Added CloudFiles Library -- utilizing the rackspace php-cloudfiles library and implemented upload function 
 					CloudFiles::upload, CloudFiles::delete, CloudFiles::ls
-* 0.0.1: 	Initial Commit -- Skeleton plugin
+* 0.0.1: 	Initial Commit -- Skeleton plugin
 
 ## Installation
 
