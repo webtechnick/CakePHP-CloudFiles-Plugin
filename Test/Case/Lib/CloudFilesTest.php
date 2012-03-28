@@ -38,5 +38,14 @@ class CloudFilesTest extends CakeTestCase {
 		$this->assertFalse($retval);
 		$this->assertEqual('File path and container required.', CloudFiles::$errors[0]);
 	}
+	
+	function test_url(){
+		$retval = CloudFiles::url('jessica_k.png', 'images');
+		$this->assertTrue(!empty($retval));
+		
+		$this->setExpectedException('NoSuchObjectException');
+		$retval = CloudFiles::url('no_exist.png', 'images');
+		$this->assertFalse($retval);
+	}
 }
 ?>
