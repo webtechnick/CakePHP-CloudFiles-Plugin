@@ -16,6 +16,11 @@ class CloudFilesTest extends CakeTestCase {
 		$this->assertTrue($retval);
 	}
 	
+	function test_ls(){
+		$retval = CloudFiles::ls('images');
+		$this->assertEqual(1, count($retval));
+	}
+	
 	function test_upload_noexist(){
 		$retval = CloudFiles::upload(WWW_ROOT . 'img/no_exist.png','images');
 		$this->assertFalse($retval);
