@@ -2,7 +2,7 @@
 /**
 * CloudFiles static library
 * @author Nick Baker
-* @since 0.0.2
+* @since 1.0.1
 * @link http://www.webtechnick.com
 */
 App::import('Vendor', 'CloudFiles.php-cloudfiles/cloudfiles');
@@ -52,6 +52,7 @@ class CloudFiles extends Object {
 	* @param key to search for
 	* @return mixed result of configuration key.
 	* @access public
+	* @example CloudFiles::getConfig('username');
 	*/
 	public static function getConfig($key = null){
 		if(empty(self::$configs)){
@@ -69,9 +70,10 @@ class CloudFiles extends Object {
 	
 	/**
 	* static method to upload a file to a specific container
-	* @param string full path to file on server
-	* @param string container name to upload file to.
+	* @param string full path to file on local machine (required)
+	* @param string container name to upload file to. (required)
 	* @return mixed false if failure, string public_uri if public, or true if success and not public
+	* @example CloudFiles::upload('/home/nwb/image.jpg', 'container_name');
 	*/
 	public static function upload($file_path = null, $container = null){
 		if(empty($file_path) || empty($container)){
@@ -90,23 +92,58 @@ class CloudFiles extends Object {
 		$filename = basename($file_path);
 
 		// upload file to Rackspace
-		if($filename && $Container){
-			$object = $Container->create_object($filename);
-			$object->content_type = mime_content_type($file_path);
-			$object->load_from_filename($file_path);
-			if($Container->is_public()){
-				return $object->public_uri();
+		if($filename && is_object($Container)){
+			$Object = $Container->create_object($filename);
+			if(is_object($Object)){
+				$Object->content_type = mime_content_type($file_path);
+				$Object->load_from_filename($file_path);
+				if($Container->is_public()){
+					return $Object->public_uri();
+				}
+				return true;
 			}
-			return true;
+		}
+		return false;
+	}
+	
+	/**
+	* Download a file from a specific container to a local file
+	* @param string filename on rackspace (required)
+	* @param string container on rackspace (required)
+	* @param string localpath to save file to (required)
+	* @param boolean overwrite localfile if already exists (default true)
+	* @return boolean success
+	* @example CloudFiles::download('image.jpg', 'container_name', '/home/nwb/image.jpg');
+	*/
+	public static function download($filename = null, $container = null, $localpath = null, $overwrite = true){
+		if(empty($localpath) || empty($filename) || empty($container)){
+			self::error("File path and container required.");
+			return false;
+		}
+		if(file_exists($localpath) && !$overwrite){
+			self::error("File exists already exists");
+			return false;
+		}
+		if(!self::connect()){
+			return false;
+		}
+		
+		$Container = self::$Connection->get_container($container);
+		if(is_object($Container)){
+			$Object = $Container->get_object($filename);
+			if(is_object($Object)){
+				return $Object->save_to_filename($localpath);
+			}
 		}
 		return false;
 	}
 	
 	/**
 	* Delete a file from a container
-	* @param string filename to delete
-	* @param string container to delete filename from
+	* @param string filename to delete (required)
+	* @param string container to delete filename from (required)
 	* @return boolean success
+	* @example CloudFiles::delete('image.jpg', 'container_name');
 	*/
 	public static function delete($filename = null, $container = null){
 		if(empty($filename) || empty($container)){
@@ -129,6 +166,8 @@ class CloudFiles extends Object {
 	*  - marker (int)    : starting with marker
 	*  - limit  (int)    : only return limit names (default everything)
 	* @return mixed false on failure or array of string names
+	* @example CloudFiles::ls('container_name');
+	* @example CloudFiles::ls('container_name', array('path' => 'animals/dogs', 'limit' => 10));
 	*/
 	public static function ls($container = null, $options = array()){
 		if(empty($container)){
@@ -155,6 +194,7 @@ class CloudFiles extends Object {
 	* @param string container (required)
 	* @param boolean streaming if true return streaming url instead of public URL.
 	* @return string public uri of object requested
+	* @example CloudFiles::url('image.jpg', 'container_name');
 	*/
 	public static function url($filename = null, $container = null, $streaming = false){
 		if(empty($filename) || empty($container)){
@@ -179,6 +219,7 @@ class CloudFiles extends Object {
 	* @param string filename (required)
 	* @param string container (required)
 	* @return string public stream url of object requested
+	* @example CloudFiles::stream('image.jpg', 'container_name');
 	*/
 	public static function stream($filename = null, $container = null){
 		return self::url($filename, $container, $streaming = true);

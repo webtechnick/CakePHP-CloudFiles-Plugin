@@ -56,5 +56,15 @@ class CloudFilesTest extends CakeTestCase {
 		$retval = CloudFiles::stream('no_exist.png', 'images');
 		$this->assertFalse($retval);
 	}
+	
+	function test_download(){
+		$path = APP . 'Plugin' . DS . 'CloudFiles' . DS . 'webroot' . DS . 'jessica_k.png';
+		@unlink($path);
+		$this->assertFalse(file_exists($path));
+		$retval = CloudFiles::download('jessica_k.png', 'images', $path);
+		$this->assertTrue($retval);
+		$this->assertTrue(file_exists($path));
+		@unlink($path);
+	}
 }
 ?>
