@@ -82,6 +82,7 @@ class CloudFiles extends Object {
 	* @throws IOException
 	* @throws SyntaxException
 	* @throws NoSuchContainerException thrown if no remote Container
+	* @throws InvalidResponseException unexpected response
 	*/
 	public static function upload($file_path = null, $container = null){
 		if(empty($file_path) || empty($container)){
@@ -125,6 +126,7 @@ class CloudFiles extends Object {
 	* @throws CloudFilesException
 	* @throws IOException
 	* @throws NoSuchContainerException thrown if no remote Container
+	* @throws InvalidResponseException unexpected response
 	*/
 	public static function download($filename = null, $container = null, $localpath = null, $overwrite = true){
 		if(empty($localpath) || empty($filename) || empty($container)){
@@ -157,6 +159,7 @@ class CloudFiles extends Object {
 	* @example CloudFiles::delete('image.jpg', 'container_name');
 	* @throws CloudFilesException
 	* @throws NoSuchContainerException thrown if no remote Container
+	* @throws InvalidResponseException unexpected response
 	*/
 	public static function delete($filename = null, $container = null){
 		if(empty($filename) || empty($container)){
@@ -215,6 +218,7 @@ class CloudFiles extends Object {
 	* @throws CloudFilesException
 	* @throws SyntaxException
 	* @throws NoSuchContainerException thrown if no remote Container
+	* @throws InvalidResponseException unexpected response
 	*/
 	public static function url($filename = null, $container = null, $streaming = false){
 		if(empty($filename) || empty($container)){
@@ -243,6 +247,7 @@ class CloudFiles extends Object {
 	* @throws CloudFilesException
 	* @throws SyntaxException
 	* @throws NoSuchContainerException thrown if no remote Container
+	* @throws InvalidResponseException unexpected response
 	*/
 	public static function stream($filename = null, $container = null){
 		return self::url($filename, $container, $streaming = true);
