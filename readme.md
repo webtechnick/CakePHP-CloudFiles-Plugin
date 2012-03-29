@@ -20,6 +20,10 @@ This plugin is used to interface with the Rackspace CloudFiles service.  This pl
 
 ## Installation
 
+There are two ways to install the plugin, via GIT with submodules or manually by downloading two repositories
+
+### Git Installation (recommended)
+
 After cloning the repository, you must run git submodule init and update to pull in the required vendor
 
 	git clone git://github.com/webtechnick/CakePHP-CloudFiles-Plugin.git app/Plugin/CloudFiles
@@ -27,11 +31,14 @@ After cloning the repository, you must run git submodule init and update to pull
 	git submodule init
 	git submodule update
 	
-Ensure the plugin is loaded in `app/Config/bootstrap.php` by calling `CakePlugin::load('CloudFiles');`
-	
-Next you'll need to configure the plugin to work with your RackSpace CloudFiles service.
+### Manual Installation
 
-## Configuration
+* Download this plugin into `app/Plugin/CloudFiles`
+* Download <https://github.com/rackspace/php-cloudfiles> into `app/Plugin/CloudFiles/Vendor/php-cloudfiles`
+
+## Setup and Configuration
+
+Ensure the plugin is loaded in `app/Config/bootstrap.php` by calling `CakePlugin::load('CloudFiles');`
 
 Create a file `app/Config/cloud_files.php` with the following:
 
@@ -43,7 +50,7 @@ Create a file `app/Config/cloud_files.php` with the following:
 		)
 	);
 
-
+Example of this configuration file is in `app/Plugin/CloudFiles/Config/cloud_files.php.default`
 
 ## Usage Examples
 
