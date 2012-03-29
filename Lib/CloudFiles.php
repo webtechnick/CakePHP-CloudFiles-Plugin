@@ -81,6 +81,7 @@ class CloudFiles extends Object {
 	* @throws CloudFilesException
 	* @throws IOException
 	* @throws SyntaxException
+	* @throws NoSuchContainerException thrown if no remote Container
 	*/
 	public static function upload($file_path = null, $container = null){
 		if(empty($file_path) || empty($container)){
@@ -123,6 +124,7 @@ class CloudFiles extends Object {
 	* @example CloudFiles::download('image.jpg', 'container_name', '/home/nwb/image.jpg');
 	* @throws CloudFilesException
 	* @throws IOException
+	* @throws NoSuchContainerException thrown if no remote Container
 	*/
 	public static function download($filename = null, $container = null, $localpath = null, $overwrite = true){
 		if(empty($localpath) || empty($filename) || empty($container)){
@@ -154,6 +156,7 @@ class CloudFiles extends Object {
 	* @return boolean success
 	* @example CloudFiles::delete('image.jpg', 'container_name');
 	* @throws CloudFilesException
+	* @throws NoSuchContainerException thrown if no remote Container
 	*/
 	public static function delete($filename = null, $container = null){
 		if(empty($filename) || empty($container)){
@@ -181,6 +184,7 @@ class CloudFiles extends Object {
 	* @throws CloudFilesException
 	* @throws InvalidResponseException
 	* @throws SyntaxException
+	* @throws NoSuchContainerException thrown if no remote Container
 	*/
 	public static function ls($container = null, $options = array()){
 		if(empty($container)){
@@ -210,6 +214,7 @@ class CloudFiles extends Object {
 	* @example CloudFiles::url('image.jpg', 'container_name');
 	* @throws CloudFilesException
 	* @throws SyntaxException
+	* @throws NoSuchContainerException thrown if no remote Container
 	*/
 	public static function url($filename = null, $container = null, $streaming = false){
 		if(empty($filename) || empty($container)){
@@ -237,6 +242,7 @@ class CloudFiles extends Object {
 	* @example CloudFiles::stream('image.jpg', 'container_name');
 	* @throws CloudFilesException
 	* @throws SyntaxException
+	* @throws NoSuchContainerException thrown if no remote Container
 	*/
 	public static function stream($filename = null, $container = null){
 		return self::url($filename, $container, $streaming = true);
