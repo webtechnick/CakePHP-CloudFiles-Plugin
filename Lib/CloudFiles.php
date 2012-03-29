@@ -1,5 +1,9 @@
 <?php
 /**
+* CloudFilesException used to throw errors.
+*/
+class CloudFilesException extends Exception {}
+/**
 * CloudFiles static library
 * @author Nick Baker
 * @since 1.0.1
@@ -74,6 +78,9 @@ class CloudFiles extends Object {
 	* @param string container name to upload file to. (required)
 	* @return mixed false if failure, string public_uri if public, or true if success and not public
 	* @example CloudFiles::upload('/home/nwb/image.jpg', 'container_name');
+	* @throws CloudFilesException
+	* @throws IOException
+	* @throws SyntaxException
 	*/
 	public static function upload($file_path = null, $container = null){
 		if(empty($file_path) || empty($container)){
@@ -114,6 +121,8 @@ class CloudFiles extends Object {
 	* @param boolean overwrite localfile if already exists (default true)
 	* @return boolean success
 	* @example CloudFiles::download('image.jpg', 'container_name', '/home/nwb/image.jpg');
+	* @throws CloudFilesException
+	* @throws IOException
 	*/
 	public static function download($filename = null, $container = null, $localpath = null, $overwrite = true){
 		if(empty($localpath) || empty($filename) || empty($container)){
@@ -144,6 +153,7 @@ class CloudFiles extends Object {
 	* @param string container to delete filename from (required)
 	* @return boolean success
 	* @example CloudFiles::delete('image.jpg', 'container_name');
+	* @throws CloudFilesException
 	*/
 	public static function delete($filename = null, $container = null){
 		if(empty($filename) || empty($container)){
@@ -168,6 +178,9 @@ class CloudFiles extends Object {
 	* @return mixed false on failure or array of string names
 	* @example CloudFiles::ls('container_name');
 	* @example CloudFiles::ls('container_name', array('path' => 'animals/dogs', 'limit' => 10));
+	* @throws CloudFilesException
+	* @throws InvalidResponseException
+	* @throws SyntaxException
 	*/
 	public static function ls($container = null, $options = array()){
 		if(empty($container)){
@@ -195,6 +208,8 @@ class CloudFiles extends Object {
 	* @param boolean streaming if true return streaming url instead of public URL.
 	* @return string public uri of object requested
 	* @example CloudFiles::url('image.jpg', 'container_name');
+	* @throws CloudFilesException
+	* @throws SyntaxException
 	*/
 	public static function url($filename = null, $container = null, $streaming = false){
 		if(empty($filename) || empty($container)){
@@ -220,6 +235,8 @@ class CloudFiles extends Object {
 	* @param string container (required)
 	* @return string public stream url of object requested
 	* @example CloudFiles::stream('image.jpg', 'container_name');
+	* @throws CloudFilesException
+	* @throws SyntaxException
 	*/
 	public static function stream($filename = null, $container = null){
 		return self::url($filename, $container, $streaming = true);
@@ -228,6 +245,9 @@ class CloudFiles extends Object {
 	/**
 	* Connect to the CloudFiles Service
 	* @return boolean success
+	* @throws CloudFilesException
+	* @throws AuthenticationException
+	* @throws InvalidResponseException
 	*/
 	protected static function connect(){
 		if(self::$Connection == null && $server = self::$server_to_auth_map[self::getConfig('server')]){
@@ -246,9 +266,11 @@ class CloudFiles extends Object {
 	/**
 	* Append a message to the static class error stream
 	* @param string message
+	* @throws CloudFilesException
 	*/
 	private static function error($message){
 		self::$errors[] = $message;
+		throw new CloudFilesException($message);
 	}
 }
 ?>

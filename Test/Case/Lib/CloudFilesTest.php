@@ -22,18 +22,21 @@ class CloudFilesTest extends CakeTestCase {
 	}
 	
 	function test_upload_noexist(){
+		$this->setExpectedException('CloudFilesException');
 		$retval = CloudFiles::upload(WWW_ROOT . 'img/no_exist.png','images');
 		$this->assertFalse($retval);
 		$this->assertEqual('File does not exist.', CloudFiles::$errors[0]);
 	}
 	
 	function test_upload_nocontainer(){
+		$this->setExpectedException('CloudFilesException');
 		$retval = CloudFiles::upload(WWW_ROOT . 'img/no_exist.png');
 		$this->assertFalse($retval);
 		$this->assertEqual('File path and container required.', CloudFiles::$errors[0]);
 	}
 	
 	function test_upload_nofile(){
+		$this->setExpectedException('CloudFilesException');
 		$retval = CloudFiles::upload();
 		$this->assertFalse($retval);
 		$this->assertEqual('File path and container required.', CloudFiles::$errors[0]);
