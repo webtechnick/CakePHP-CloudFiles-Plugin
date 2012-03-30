@@ -1,9 +1,8 @@
 <?php
-App::uses('BaseShell', 'Console/Command');
 App::uses('CloudFiles','CloudFiles.Lib');
 App::uses('Folder', 'Utility');
 App::uses('File', 'Utility');
-class CloudFilesShell extends BaseShell {
+class CloudFilesShell extends Shell {
 	public $tasks = array('CloudFiles.ProgressBar');
 	
 	function main(){
