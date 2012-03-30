@@ -122,7 +122,7 @@ There is also a helper class to assist image and streaming retrieval
 	public $helpers = array('CloudFiles.CloudFiles');
 	
 	//Some View
-	echo $this->CloudFiles->image('image.jpg,'container_name');
+	echo $this->CloudFiles->image('image.jpg','container_name');
 	echo $this->CloudFiles->stream('movie.mov', 'container_name');
 	echo $this->CloudFiles->url('some_file.txt', 'container_name');
 	
