@@ -209,6 +209,72 @@ class CloudFiles extends Object {
 	}
 	
 	/**
+	* List all containers
+	* @param array options array
+	*  - marker (int)  : starting with marker
+	*  - limit  (int)  : only return limit containers (default everything)
+	* @return array of container names
+	* @throws CloudFilesException
+	* @throws InvalidResponseException
+	* @throws AuthenticationException
+	*/
+	public static function listContainers($options = array()){
+		$options = array_merge(array(
+			'limit' => 0,
+			'marker' => null
+		), $options);
+		if(!self::connect()){
+			return false;
+		}
+		return self::$Connection->list_containers($options['limit'], $options['marker']);
+	}
+	
+	/**
+	* Create a container
+	* @param string $container_name container name (required)
+	* @param boolean make the new container public (default true)
+	* @return CF_Container
+	* @throws SyntaxException invalid name
+	* @throws InvalidResponseException unexpected response
+	*/
+	public static function createContainer($container = null, $public = true){
+		if(empty($container)){
+			self::error("container name is required.");
+			return false;
+		}
+		if(!self::connect()){
+			return false;
+		}
+		$retval = self::$Connection->create_container($container);
+		if(is_object($retval) && $public){
+			$retval->make_public();
+		}
+		return $retval;
+	}
+	
+	/**
+	* Delete a container
+	* @param string $container_name container name (required)
+	* @return boolean <kbd>True</kbd> if successfully deleted
+	* @throws CloudFilesException
+	* @throws AuthenticationException
+	* @throws SyntaxException missing proper argument
+	* @throws InvalidResponseException invalid response
+	* @throws NonEmptyContainerException container not empty
+	* @throws NoSuchContainerException remote container does not exist
+	*/
+	public static function deleteContainer($container = null){
+		if(empty($container)){
+			self::error("container name is required.");
+			return false;
+		}
+		if(!self::connect()){
+			return false;
+		}
+		return self::$Connection->delete_container($container);
+	}
+	
+	/**
 	* Get URL of an object
 	* @param string filename (required)
 	* @param string container (required)

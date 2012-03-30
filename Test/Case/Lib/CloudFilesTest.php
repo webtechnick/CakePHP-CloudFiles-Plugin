@@ -69,5 +69,26 @@ class CloudFilesTest extends CakeTestCase {
 		$this->assertTrue(file_exists($path));
 		@unlink($path);
 	}
+	
+	function test_listContainer(){
+		$retval = CloudFiles::listContainers();
+		$this->assertTrue(!empty($retval));
+	}
+	
+	function test_createContainer(){
+		$retval = CloudFiles::createContainer('delme');
+		$this->assertTrue(is_object($retval));
+		$containers = CloudFiles::listContainers();
+		$this->assertTrue(in_array('delme', $containers));
+	}
+	
+	function test_deleteContainer(){
+		$containers = CloudFiles::listContainers();
+		$this->assertTrue(in_array('delme', $containers));
+		$retval = CloudFiles::deleteContainer('delme');
+		$this->assertTrue($retval);
+		$containers = CloudFiles::listContainers();
+		$this->assertFalse(in_array('delme', $containers));
+	}
 }
 ?>
