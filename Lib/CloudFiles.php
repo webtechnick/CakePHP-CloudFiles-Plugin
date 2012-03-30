@@ -6,7 +6,7 @@ class CloudFilesException extends Exception {}
 /**
 * CloudFiles static library
 * @author Nick Baker
-* @since 1.0.1
+* @since 1.1.0
 * @link http://www.webtechnick.com
 */
 App::import('Vendor', 'CloudFiles.php-cloudfiles/cloudfiles');
@@ -211,8 +211,9 @@ class CloudFiles extends Object {
 	/**
 	* List all containers
 	* @param array options array
-	*  - marker (int)  : starting with marker
-	*  - limit  (int)  : only return limit containers (default everything)
+	*  - marker      (int)  : starting with marker
+	*  - limit       (int)  : only return limit containers (default everything)
+	*  - only_public (bool) : only show public containers
 	* @return array of container names
 	* @throws CloudFilesException
 	* @throws InvalidResponseException
@@ -221,10 +222,14 @@ class CloudFiles extends Object {
 	public static function listContainers($options = array()){
 		$options = array_merge(array(
 			'limit' => 0,
-			'marker' => null
+			'marker' => null,
+			'only_public' => false
 		), $options);
 		if(!self::connect()){
 			return false;
+		}
+		if($options['only_public']){
+			return self::$Connection->list_public_containers();
 		}
 		return self::$Connection->list_containers($options['limit'], $options['marker']);
 	}

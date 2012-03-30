@@ -1,6 +1,6 @@
 # Rackspace CloudFiles CakePHP Plugin
 * Author: Nick Baker
-* Version: 1.0.1
+* Version: 1.1.0
 * License: MIT
 * Website: <http://www.webtechnick.com>
 
@@ -12,6 +12,7 @@ This plugin is used to interface with the Rackspace CloudFiles service.  This pl
 * Any requirements defined by <https://github.com/rackspace/php-cloudfiles>
 
 ## Changelog
+* 1.1.0:  Added CloudFiles::listContainer, CloudFiles::createContainer, CloudFiles::deleteContainer
 * 1.0.1:  Added CloudFiles::download
 * 1.0.0:  Initial Release -- More polish, added CloudFilesHelper, all basic REST actions on cloud files implemented.
 * 0.0.2: 	Added CloudFiles Library -- utilizing the rackspace php-cloudfiles library and implemented upload function 
@@ -124,3 +125,36 @@ There is also a helper class to assist image and streaming retrieval
 	echo $this->CloudFiles->image('image.jpg,'container_name');
 	echo $this->CloudFiles->stream('movie.mov', 'container_name');
 	echo $this->CloudFiles->url('some_file.txt', 'container_name');
+	
+### List containers on rackspace
+
+List all containers on rackspace
+
+	App::uses('CloudFiles','CloudFiles.Lib');
+	//Get all containers
+	$containers = CloudFiles::listContainers();
+	//Limit the containers returned
+	$containers = CloudFiles::listContainers(array(
+		'limit' => 2
+	));
+	//Show only public containers
+	$containers = CloudFiles::listContainers(array(
+		'only_public' => true
+	));
+	
+### Create container on rackspace
+
+Created a container on rackspace, defaults to public container (CDN)
+
+	App::uses('CloudFiles','CloudFiles.Lib');
+	$Container = CloudFiles::createContainer('css');
+	
+	//Create a non-public container
+	$Container = CloudFiles::createContainer('no_public', false);
+	
+### Delete a container on rackspace
+
+Delete a container on rackspace, notice container must be empty.
+
+	App::uses('CloudFiles', 'CloudFiles.Lib');
+	CloudFiles::deleteContainer('container_name');
