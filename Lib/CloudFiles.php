@@ -104,7 +104,6 @@ class CloudFiles extends Object {
 		if($filename && is_object($Container)){
 			$Object = $Container->create_object($filename);
 			if(is_object($Object)){
-				$Object->content_type = mime_content_type($file_path);
 				$Object->load_from_filename($file_path);
 				if($Container->is_public()){
 					return $Object->public_uri();
