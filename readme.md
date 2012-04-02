@@ -65,6 +65,14 @@ Uploads a local file to the specified container in rackspace
 	App::uses('CloudFiles','CloudFiles.Lib');
 	$cdn_url = CloudFiles::upload('/path/to/image.jpg','container_name');
 	
+*TIP:* There is also a built in shell to help upload directories and files
+
+	//Rerusively upload a directory to a container on rackspace
+	$ cake CloudFiles.cloud_files -r upload /path/to/directory container_name
+	
+	//Upload a single file to a container on rackspace
+	$ cake CloudFiles.cloud_files upload_file /path/to/file.ext container_name
+	
 ### Download a file from rackspace
 
 Download a remote file in a specific container to a local file
@@ -78,6 +86,14 @@ Delete a file from a specific container on rackspace
 
 	App::uses('CloudFiles','CloudFiles.Lib');
 	CloudFiles::delete('image.jpg','container_name');
+	
+*TIP:* There is also a built in shell to help delete files on rackspace
+
+	//Delete a single file in a container on rackspace
+	$ cake CloudFiles.cloud_files delete_file file.ext container_name
+	
+	//Delete all files in a container as well as the container
+	$ cake CloudFiles.cloud_files delete_container container_name
 	
 ### List files on rackspace
 
@@ -153,9 +169,17 @@ Created a container on rackspace, defaults to public container (CDN)
 	//Create a non-public container
 	$Container = CloudFiles::createContainer('no_public', false);
 	
+*TIP:* There is a shell to help create containers.
+
+	$ cake CloudFiles.cloud_files create_container container_name
+	
 ### Delete a container on rackspace
 
 Delete a container on rackspace, notice container must be empty.
 
 	App::uses('CloudFiles', 'CloudFiles.Lib');
 	CloudFiles::deleteContainer('container_name');
+	
+*TIP:* There is a shell to help delete containers. Note, this also deletes all files prior to deleting the container
+
+	$ cake CloudFiles.cloud_files delete_container container_name
