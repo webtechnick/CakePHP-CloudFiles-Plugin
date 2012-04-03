@@ -111,12 +111,12 @@ class CloudFilesShell extends AppShell {
 	}
 	
 	/**
-  * Set an error message and exit
-  * @param message
-  */
-  protected function errorAndExit($message = null){
-  	$this->out($message);
-  	exit();
-  }
+	* Set an error message and exit
+	* @param message
+	*/
+	protected function errorAndExit($message = null){
+		$this->out($message);
+		exit();
+	}
 }
 ?>
