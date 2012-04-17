@@ -76,6 +76,7 @@ class CloudFiles extends Object {
 	* static method to upload a file to a specific container
 	* @param string full path to file on local machine (required)
 	* @param string container name to upload file to. (required)
+	* @param string mime-type name to upload file to. (optional)
 	* @return mixed false if failure, string public_uri if public, or true if success and not public
 	* @example CloudFiles::upload('/home/nwb/image.jpg', 'container_name');
 	* @throws CloudFilesException
@@ -84,7 +85,7 @@ class CloudFiles extends Object {
 	* @throws NoSuchContainerException thrown if no remote Container
 	* @throws InvalidResponseException unexpected response
 	*/
-	public static function upload($file_path = null, $container = null){
+	public static function upload($file_path = null, $container = null, $mimetype = null){
 		if(empty($file_path) || empty($container)){
 			self::error("File path and container required.");
 			return false;
@@ -104,6 +105,9 @@ class CloudFiles extends Object {
 		if($filename && is_object($Container)){
 			$Object = $Container->create_object($filename);
 			if(is_object($Object)){
+				if($mimetype){
+					$Object->content_type = $mimetype;
+				}
 				$Object->load_from_filename($file_path);
 				if($Container->is_public()){
 					return $Object->public_uri();

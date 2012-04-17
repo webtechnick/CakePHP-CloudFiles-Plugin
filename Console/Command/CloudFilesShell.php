@@ -5,11 +5,54 @@ App::uses('Folder', 'Utility');
 App::uses('File', 'Utility');
 class CloudFilesShell extends AppShell {
 	public $tasks = array('CloudFiles.ProgressBar');
+	public $file = null;
+	public $container = null;
 	
 	function main(){
 		$this->out("CloudFiles Shell");
 		$this->hr();
 		$this->help();
+	}
+	
+	function getOptionParser(){
+		$parser = parent::getOptionParser();
+		return $parser->description("Cloud Files interact with Rackspace")
+		->addOption('recursive', array(
+			'help' => 'Set recursive to true. (upload subcommand only)',
+			'short' => 'r',
+			'boolean' => true
+		))
+		->addOption('type', array(
+			'help' => 'file type to upload. (upload_file subcommand only)',
+			'short' => 't',
+		))
+		->addOption('container', array(
+			'help' => 'container name',
+			'short' => 'c',
+		))
+		->addOption('file', array(
+			'help' => 'file to upload',
+			'short' => 'f',
+		))
+		->addOption('path', array(
+			'help' => 'directory path to upload. (upload subcommand only)',
+			'short' => 'p',
+		))
+		->addSubcommand('upload_file', array(
+			'help' => 'Upload a single file to specific container'
+		))
+		->addSubcommand('upload', array(
+			'help' => 'Upload all files in a path to specific container'
+		))
+		->addSubcommand('delete_file', array(
+			'help' => 'Delete a single file to specific container'
+		))
+		->addSubcommand('create_container', array(
+			'help' => 'Create a container'
+		))
+		->addSubcommand('delete_container', array(
+			'help' => 'Delete a container and all it\'s files'
+		));
 	}
 	
 	function help(){
@@ -21,14 +64,15 @@ class CloudFilesShell extends AppShell {
 	}
 	
 	function upload_file(){
-		$file = array_shift($this->args);
-		$container = array_shift($this->args);
+		$file = $this->getNextParam(null, 'file');
+		$container = $this->getNextParam(null, 'container');
+		
 		if(empty($file) || empty($container)){
 			$this->errorAndExit('File and Container required');
 		}
 		$File = new File($file);
 		$file_path = $File->pwd();
-		CloudFiles::upload($file_path, $container);
+		CloudFiles::upload($file_path, $container, $this->params['type']);
 		$this->out($File->name . " uploaded to $container");
 	}
 	
@@ -48,8 +92,8 @@ class CloudFilesShell extends AppShell {
 	}
 	
 	function upload(){
-		$directory = array_shift($this->args);
-		$container = array_shift($this->args);
+		$directory = $this->getNextParam(null, 'path');
+		$container = $this->getNextParam(null, 'container');
 		if(empty($directory) || empty($container)){
 			$this->errorAndExit('Directory and Container required');
 		}
@@ -75,7 +119,7 @@ class CloudFilesShell extends AppShell {
 	}
 	
 	function create_container(){
-		$container = array_shift($this->args);
+		$container = $this->getNextParam(null, 'container');
 		if(!$container){
 			$this->errorAndExit("Container required");
 		}
@@ -84,7 +128,7 @@ class CloudFilesShell extends AppShell {
 	}
 	
 	function delete_container(){
-		$container = array_shift($this->args);
+		$container = $this->getNextParam(null, 'container');
 		if(!$container){
 			$this->errorAndExit("Container required");
 		}
@@ -100,16 +144,6 @@ class CloudFilesShell extends AppShell {
 		$this->out("Finished");
 	}
 	
-	function getOptionParser(){
-		$parser = parent::getOptionParser();
-		return $parser->description("Interact with the CloudFiles CDN")
-		->addOption('recursive', array(
-			'help' => 'Set recursive to true',
-			'short' => 'r',
-			'boolean' => true
-		));
-	}
-	
 	/**
 	* Set an error message and exit
 	* @param message
@@ -118,5 +152,25 @@ class CloudFilesShell extends AppShell {
 		$this->out($message);
 		exit();
 	}
+	
+	/**
+  * Returns the next paramater passed in through the command line
+  * @param mixed default value
+  * @param mixed param to check first
+  * @return returns the default value or the next param.
+  */
+  protected function getNextParam($default = null, $param = null){
+  	$retval = null;
+  	if($param && isset($this->params[$param])){
+  		$retval = $this->params[$param];
+  	}
+  	if(!$retval){
+  		$retval = array_shift($this->args);
+  	}
+  	if(!$retval){
+  		$retval = $default;
+  	}
+  	return $retval;
+  }
 }
 ?>
