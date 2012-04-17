@@ -45,7 +45,7 @@ class CloudFilesShell extends AppShell {
 			'help' => 'Upload all files in a path to specific container'
 		))
 		->addSubcommand('delete_file', array(
-			'help' => 'Delete a single file to specific container'
+			'help' => 'Delete a single file from specific container'
 		))
 		->addSubcommand('create_container', array(
 			'help' => 'Create a container'
