@@ -25,6 +25,7 @@ class CloudFilesShell extends AppShell {
 		->addOption('type', array(
 			'help' => 'file type to upload. (upload_file subcommand only)',
 			'short' => 't',
+			'default' => '',
 		))
 		->addOption('container', array(
 			'help' => 'container name',
