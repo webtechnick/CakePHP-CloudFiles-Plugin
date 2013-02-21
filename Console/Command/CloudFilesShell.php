@@ -27,6 +27,11 @@ class CloudFilesShell extends AppShell {
 			'short' => 't',
 			'default' => '',
 		))
+		->addOption('overwrite', array(
+			'help' => 'overwrite the file. (upload and upload_file subcommands only)',
+			'short' => 'o',
+			'boolean' => true,
+		))
 		->addOption('container', array(
 			'help' => 'container name',
 			'short' => 'c',
@@ -73,7 +78,10 @@ class CloudFilesShell extends AppShell {
 		}
 		$File = new File($file);
 		$file_path = $File->pwd();
-		CloudFiles::upload($file_path, $container, $this->params['type']);
+		CloudFiles::upload($file_path, $container, array(
+			'mimetype' => $this->params['type'],
+			'overwrite' => $this->params['overwrite']
+		));
 		$this->out($File->name . " uploaded to $container");
 	}
 	
@@ -86,8 +94,7 @@ class CloudFilesShell extends AppShell {
 		$result = CloudFiles::delete($file, $container);
 		if($result){
 			$this->out("$file deleted from $container");
-		}
-		else {
+		}	else {
 			$this->out("Unable to delete $file from $container");
 		}
 	}
@@ -101,8 +108,7 @@ class CloudFilesShell extends AppShell {
 		$Folder = new Folder($directory);
 		if($this->params['recursive']){
 			$files = $Folder->findRecursive();
-		}
-		else {
+		}	else {
 			$single_files = $Folder->find();
 			$files = array();
 			foreach($single_files as $file){
@@ -112,7 +118,9 @@ class CloudFilesShell extends AppShell {
 		
 		$this->ProgressBar->start(count($files));
 		foreach($files as $file){
-			CloudFiles::upload($file, $container);
+			CloudFiles::upload($file, $container, array(
+				'overwrite' => $this->params['overwrite']
+			));
 			$this->ProgressBar->next();
 		}
 		$this->out();
@@ -147,7 +155,7 @@ class CloudFilesShell extends AppShell {
 	
 	/**
 	* Set an error message and exit
-	* @param message
+	* @param message 
 	*/
 	protected function errorAndExit($message = null){
 		$this->out($message);
@@ -174,4 +182,3 @@ class CloudFilesShell extends AppShell {
   	return $retval;
   }
 }
-?>

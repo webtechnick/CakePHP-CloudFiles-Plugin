@@ -1,6 +1,6 @@
 # Rackspace CloudFiles CakePHP Plugin
 * Author: Nick Baker
-* Version: 1.2.0
+* Version: 1.3.0
 * License: MIT
 * Website: <http://www.webtechnick.com>
 
@@ -12,6 +12,7 @@ This plugin is used to interface with the Rackspace CloudFiles service.  This pl
 * Any requirements defined by <https://github.com/rackspace/php-cloudfiles>
 
 ## Changelog
+* 1.3.0:  Added CloudFiles::exists and CloudFiles::upload now will check if file exists before uploading (default off)
 * 1.2.0:  Added CloudFiles.cloud_files shell for basic upload/delete of files to your CDN
 * 1.1.0:  Added CloudFiles::listContainer, CloudFiles::createContainer, CloudFiles::deleteContainer
 * 1.0.1:  Added CloudFiles::download
@@ -64,6 +65,8 @@ Uploads a local file to the specified container in rackspace
 
 	App::uses('CloudFiles','CloudFiles.Lib');
 	$cdn_url = CloudFiles::upload('/path/to/image.jpg','container_name');
+	//Will not re-upload the same image if it's already in the CDN
+	CloudFiles::upload('/path/to/image.jpg', 'container_name', array('overwrite' => false));
 	
 *TIP:* There is also a built in shell to help upload directories and files
 

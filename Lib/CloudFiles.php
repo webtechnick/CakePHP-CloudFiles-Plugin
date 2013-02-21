@@ -6,7 +6,7 @@ class CloudFilesException extends Exception {}
 /**
 * CloudFiles static library
 * @author Nick Baker
-* @since 1.1.0
+* @since 1.2.0
 * @link http://www.webtechnick.com
 */
 App::import('Vendor', 'CloudFiles.php-cloudfiles/cloudfiles');
@@ -79,6 +79,7 @@ class CloudFiles extends Object {
 	* @param array of options
 	*   - filename: name to upload file to. (optional)
 	*   - mimetype: custom mimetype of file.  (optional)
+	*   - overwrite: if false, will check if the file exists first (optional) (default true).
 	* @return mixed false if failure, string public_uri if public, or true if success and not public
 	* @example CloudFiles::upload('/home/nwb/image.jpg', 'container_name');
 	* @throws CloudFilesException
@@ -95,7 +96,8 @@ class CloudFiles extends Object {
 		}
 		$options = array_merge(array(
 			'mimetype' => null,
-			'filename' => null
+			'filename' => null,
+			'overwrite' => true,
 		),$options);
 		
 		if(empty($file_path) || empty($container)){
@@ -109,13 +111,15 @@ class CloudFiles extends Object {
 		if(!self::connect()){
 			return false;
 		}
-		
-		$Container = self::$Connection->get_container($container);
 		if(!$options['filename']){
 			$options['filename'] = basename($file_path);
 		}
-
+		//Check if file already exists unless we're overwriting (default true)
+		if(!$options['overwrite'] && self::exists($container, $options['filename'])){
+			return true;
+		}
 		// upload file to Rackspace
+		$Container = self::$Connection->get_container($container);
 		if($options['filename'] && is_object($Container)){
 			$Object = $Container->create_object($options['filename']);
 			if(is_object($Object)){
@@ -130,6 +134,32 @@ class CloudFiles extends Object {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	* Check if a file exists in a container
+	* @param string container
+	* @param string filename
+	* @return boolean if the file exists.
+	* @example CloudFiles::exists('container', 'image.jpg');
+	* @throws CloudFilesException
+	* @throws SyntaxException
+	* @throws NoSuchContainerException thrown if no remote Container
+	* @throws InvalidResponseException unexpected response
+	*/
+	public static function exists($container = null, $filename = null){
+		if(empty($filename) || empty($container)){
+			self::error("Filename and container required.");
+			return false;
+		}
+		if(!self::connect()){
+			return false;
+		}
+		$result = self::ls($container, array(
+			'prefix' => $filename,
+			'limit' => 1,
+		));
+		return !empty($result);
 	}
 	
 	/**
@@ -234,7 +264,7 @@ class CloudFiles extends Object {
 	* @return array of container names
 	* @throws CloudFilesException
 	* @throws InvalidResponseException
-	* @throws AuthenticationException
+	* @throws AuthenticationException 
 	*/
 	public static function listContainers($options = array()){
 		$options = array_merge(array(
@@ -346,7 +376,7 @@ class CloudFiles extends Object {
 	* @return boolean success
 	* @throws CloudFilesException
 	* @throws AuthenticationException
-	* @throws InvalidResponseException
+	* @throws InvalidResponseException 
 	*/
 	protected static function connect(){
 		if(self::$Connection == null && $server = self::$server_to_auth_map[self::getConfig('server')]){
@@ -365,11 +395,10 @@ class CloudFiles extends Object {
 	/**
 	* Append a message to the static class error stream
 	* @param string message
-	* @throws CloudFilesException
+	* @throws CloudFilesException 
 	*/
 	private static function error($message){
 		self::$errors[] = $message;
 		throw new CloudFilesException($message);
 	}
 }
-?>
