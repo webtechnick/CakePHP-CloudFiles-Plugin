@@ -118,7 +118,7 @@ class CloudFilesShell extends AppShell {
 		$this->ProgressBar->start(count($files));
 		foreach($files as $file){
 			CloudFiles::upload($file, $container, array(
-				'mimetype' => $this->params['type']
+				'mimetype' => $this->params['type'],
 				'overwrite' => $this->params['overwrite']
 			));
 			$this->ProgressBar->next();
