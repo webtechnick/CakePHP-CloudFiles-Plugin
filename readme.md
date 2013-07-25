@@ -1,6 +1,6 @@
 # Rackspace CloudFiles CakePHP Plugin
 * Author: Nick Baker
-* Version: 1.3.0
+* Version: 1.4.0
 * License: MIT
 * Website: <http://www.webtechnick.com>
 
@@ -9,9 +9,10 @@ This plugin is used to interface with the Rackspace CloudFiles service.  This pl
 ## Requirements
 
 * CakePHP 2.x, PHP 5.x
-* Any requirements defined by <https://github.com/rackspace/php-cloudfiles>
+* Any requirements defined by <https://github.com/rackspace/php-opencloud>
 
 ## Changelog
+* 1.4.0:  Upgraded to https://github.com/rackspace/php-opencloud instead of deprecated https://github.com/rackerlabs/php-cloudfiles.  Update your submodules.
 * 1.3.0:  Added CloudFiles::exists and CloudFiles::upload now will check if file exists before uploading (default off)
 * 1.2.0:  Added CloudFiles.cloud_files shell for basic upload/delete of files to your CDN
 * 1.1.0:  Added CloudFiles::listContainer, CloudFiles::createContainer, CloudFiles::deleteContainer
@@ -37,7 +38,7 @@ After cloning the repository, you must run git submodule init and update to pull
 ### Manual Installation
 
 * Download this plugin into `app/Plugin/CloudFiles`
-* Download <https://github.com/rackspace/php-cloudfiles> into `app/Plugin/CloudFiles/Vendor/php-cloudfiles`
+* Download <https://github.com/rackspace/php-opencloud> into `app/Plugin/CloudFiles/Vendor/php-opencloud`
 
 ## Setup and Configuration
 
@@ -50,6 +51,9 @@ Create a file `app/Config/cloud_files.php` with the following:
 			'server' => 'US', //UK
 			'username' => 'your_username', //your username
 			'api_key' => 'API_KEY', //your api key
+			'region' => 'ORD', //ORD, DFW, LON
+			'url_type' => 'publicURL',
+			'tenant_name' => ''
 		)
 	);
 
@@ -106,11 +110,6 @@ List files in a specified container on rackspace
 	//Get all files in container
 	$files = CloudFiles::ls('container_name');
 	
-	//Get files in subfolder
-	$files = CloudFiles::ls('container_name', array(
-		'path' => 'pictures/animals'
-	));
-	
 	//Get files starting with a prefix
 	$files = CloudFiles::ls('container_name', array(
 		'prefix' => 'cake'
@@ -157,10 +156,6 @@ List all containers on rackspace
 	$containers = CloudFiles::listContainers(array(
 		'limit' => 2
 	));
-	//Show only public containers
-	$containers = CloudFiles::listContainers(array(
-		'only_public' => true
-	));
 	
 ### Create container on rackspace
 
@@ -168,9 +163,6 @@ Created a container on rackspace, defaults to public container (CDN)
 
 	App::uses('CloudFiles','CloudFiles.Lib');
 	$Container = CloudFiles::createContainer('css');
-	
-	//Create a non-public container
-	$Container = CloudFiles::createContainer('no_public', false);
 	
 *TIP:* There is a shell to help create containers.
 

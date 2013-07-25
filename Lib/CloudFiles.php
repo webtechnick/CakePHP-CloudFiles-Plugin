@@ -6,7 +6,7 @@ class CloudFilesException extends Exception {}
 /**
 * CloudFiles static library
 * @author Nick Baker
-* @since 1.2.0
+* @since 1.4.0
 * @link http://www.webtechnick.com
 */
 //App::import('Vendor', 'CloudFiles.php-cloudfiles/cloudfiles');
