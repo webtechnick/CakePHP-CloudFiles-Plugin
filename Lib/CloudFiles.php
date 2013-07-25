@@ -9,7 +9,8 @@ class CloudFilesException extends Exception {}
 * @since 1.2.0
 * @link http://www.webtechnick.com
 */
-App::import('Vendor', 'CloudFiles.php-cloudfiles/cloudfiles');
+//App::import('Vendor', 'CloudFiles.php-cloudfiles/cloudfiles');
+App::import('Vendor', 'CloudFiles.php-opencloud/lib/php-opencloud');
 class CloudFiles extends Object {
 	
 	/**
@@ -20,18 +21,18 @@ class CloudFiles extends Object {
 	public static $configs = array();
 	
 	/**
-	* Authenticatoin object
-	* @var CF_Authentication
-	* @access public
-	*/
-	public static $Authentication = null;
-	
-	/**
 	* Connection object
-	* @var CF_Connect
+	* @var \OpenCloud\RackSpace
 	* @access public
 	*/
 	public static $Connection = null;
+	
+	/**
+	* ObjectStore Object
+	* @var ObjectStore
+	* @access public
+	*/
+	public static $ObjectStore = null;
 	
 	/**
 	* Shorthand server to full AuthURL
@@ -39,8 +40,8 @@ class CloudFiles extends Object {
 	* @access private
 	*/
 	private static $server_to_auth_map = array(
-		'US' => 'https://auth.api.rackspacecloud.com',
-		'UK' => 'https://lon.auth.api.rackspacecloud.com'
+		'US' => RACKSPACE_US,
+		'UK' => RACKSPACE_UK,
 	);
 	
 	/**
@@ -119,16 +120,20 @@ class CloudFiles extends Object {
 			return true;
 		}
 		// upload file to Rackspace
-		$Container = self::$Connection->get_container($container);
+		$Container = self::$ObjectStore->Container($container);
 		if($options['filename'] && is_object($Container)){
-			$Object = $Container->create_object($options['filename']);
+			$Object = $Container->DataObject();
 			if(is_object($Object)){
 				if($options['mimetype']){
 					$Object->content_type = $options['mimetype'];
 				}
-				$Object->load_from_filename($file_path);
-				if($Container->is_public()){
-					return $Object->public_uri();
+				$Object->Create(
+					array('name' => $options['filename']),
+					$file_path
+				);
+				
+				if($retval = $Object->PublicURL()){
+					return $retval;
 				}
 				return true;
 			}
@@ -188,11 +193,11 @@ class CloudFiles extends Object {
 			return false;
 		}
 		
-		$Container = self::$Connection->get_container($container);
+		$Container = self::$ObjectStore->Container($container);
 		if(is_object($Container)){
-			$Object = $Container->get_object($filename);
+			$Object = $Container->DataObject($filename);
 			if(is_object($Object)){
-				return $Object->save_to_filename($localpath);
+				return $Object->SaveToFilename($localpath);
 			}
 		}
 		return false;
@@ -216,15 +221,18 @@ class CloudFiles extends Object {
 		if(!self::connect()){
 			return false;
 		}
-		$Container = self::$Connection->get_container($container);
-		return $Container->delete_object($filename, $container);
+		$Container = self::$ObjectStore->Container($container);
+		$Object = $Container->DataObject($filename);
+		if(is_object($Object)){
+			return !!($Object->Delete());
+		}
+		return false;
 	}
 	
 	/**
 	* Return a list of what is in a container
 	* @param string container (required)
 	* @param array options (optional)
-	*  - path   (string) : only return results under path
 	*  - prefix (string) : only return names starting with prefix
 	*  - marker (int)    : starting with marker
 	*  - limit  (int)    : only return limit names (default everything)
@@ -245,14 +253,23 @@ class CloudFiles extends Object {
 			return false;
 		}
 		$options = array_merge(array(
-			'path' => null,
-			'marker' => null,
-			'limit' => 0,
-			'prefix' => null,
+			'marker' => '',
+			'prefix' => '',
 		), $options);
 		
-		$Container = self::$Connection->get_container($container);
-		return $Container->list_objects($options['limit'], $options['marker'], $options['prefix'], $options['path']);
+		$Container = self::$ObjectStore->Container($container);
+		$retval = array();
+		if(is_object($Container)){
+			$objects = $Container->ObjectList($options);
+			while($object = $objects->Next()){
+				$retval[$object->Name()] = array(
+					'name' => $object->Name(),
+					'bytes' => $object->bytes,
+					'content_type' => $object->content_type
+				);
+			}
+		}
+		return $retval;
 	}
 	
 	/**
@@ -275,21 +292,27 @@ class CloudFiles extends Object {
 		if(!self::connect()){
 			return false;
 		}
-		if($options['only_public']){
-			return self::$Connection->list_public_containers();
+		
+		$containers = self::$ObjectStore->ContainerList();
+		$retval = array();
+		while($container = $containers->Next()){
+			$retval[$container->name] = array(
+				'name' => $container->name,
+				'count' => $container->count,
+				'bytes' => $container->bytes,
+			);
 		}
-		return self::$Connection->list_containers($options['limit'], $options['marker']);
+		return $retval;
 	}
 	
 	/**
 	* Create a container
 	* @param string $container_name container name (required)
-	* @param boolean make the new container public (default true)
-	* @return CF_Container
+	* @return Container
 	* @throws SyntaxException invalid name
 	* @throws InvalidResponseException unexpected response
 	*/
-	public static function createContainer($container = null, $public = true){
+	public static function createContainer($container = null){
 		if(empty($container)){
 			self::error("container name is required.");
 			return false;
@@ -297,11 +320,11 @@ class CloudFiles extends Object {
 		if(!self::connect()){
 			return false;
 		}
-		$retval = self::$Connection->create_container($container);
-		if(is_object($retval) && $public){
-			$retval->make_public();
+		$Container = self::$ObjectStore->Container();
+		if(is_object($Container)){
+			$Container->Create(array('name' => $container));
 		}
-		return $retval;
+		return $Container;
 	}
 	
 	/**
@@ -323,14 +346,17 @@ class CloudFiles extends Object {
 		if(!self::connect()){
 			return false;
 		}
-		return self::$Connection->delete_container($container);
+		$Container = self::$ObjectStore->Container($container);
+		if(is_object($Container)){
+			return $Container->Delete();
+		}
+		return false;
 	}
 	
 	/**
 	* Get URL of an object
 	* @param string filename (required)
 	* @param string container (required)
-	* @param boolean streaming if true return streaming url instead of public URL.
 	* @return string public uri of object requested
 	* @example CloudFiles::url('image.jpg', 'container_name');
 	* @throws CloudFilesException
@@ -338,7 +364,7 @@ class CloudFiles extends Object {
 	* @throws NoSuchContainerException thrown if no remote Container
 	* @throws InvalidResponseException unexpected response
 	*/
-	public static function url($filename = null, $container = null, $streaming = false){
+	public static function url($filename = null, $container = null){
 		if(empty($filename) || empty($container)){
 			self::error("Filename and container required.");
 			return false;
@@ -346,11 +372,11 @@ class CloudFiles extends Object {
 		if(!self::connect()){
 			return false;
 		}
-		$Container = self::$Connection->get_container($container);
+		$Container = self::$ObjectStore->Container($container);
 		if(is_object($Container)){
-			$Object = $Container->get_object($filename);
+			$Object = $Container->DataObject($filename);
 			if(is_object($Object)){
-				return $streaming ? $Object->public_streaming_uri() : $Object->public_uri();
+				return $Object->PublicURL();
 			}
 		}
 		return null;
@@ -361,14 +387,13 @@ class CloudFiles extends Object {
 	* @param string filename (required)
 	* @param string container (required)
 	* @return string public stream url of object requested
-	* @example CloudFiles::stream('image.jpg', 'container_name');
 	* @throws CloudFilesException
 	* @throws SyntaxException
 	* @throws NoSuchContainerException thrown if no remote Container
 	* @throws InvalidResponseException unexpected response
 	*/
 	public static function stream($filename = null, $container = null){
-		return self::url($filename, $container, $streaming = true);
+		return self::url($filename, $container);
 	}
 	
 	/**
@@ -378,12 +403,14 @@ class CloudFiles extends Object {
 	* @throws AuthenticationException
 	* @throws InvalidResponseException 
 	*/
-	protected static function connect(){
+	public static function connect(){
 		if(self::$Connection == null && $server = self::$server_to_auth_map[self::getConfig('server')]){
-			self::$Authentication = new CF_Authentication(self::getConfig('username'), self::getConfig('api_key'), null, $server);
-			self::$Authentication->ssl_use_cabundle();
-			self::$Authentication->authenticate();
-			self::$Connection = new CF_Connection(self::$Authentication);
+			self::$Connection = new \OpenCloud\Rackspace($server, array(
+				'username' => self::getConfig('username'),
+				'apiKey' => self::getConfig('api_key')
+			));
+			//self::$Connection->setDefaults('ObjectStore', 'cloudFiles', self::getConfig('region'), self::getConfig('url_type'));
+			self::$ObjectStore = self::$Connection->ObjectStore('cloudFiles', self::getConfig('region'), self::getConfig('url_type'));
 		}
 		$retval = !!(self::$Connection);
 		if(!$retval){
