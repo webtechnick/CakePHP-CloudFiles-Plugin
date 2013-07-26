@@ -9,31 +9,30 @@ class CloudFilesException extends Exception {}
 * @since 1.4.0
 * @link http://www.webtechnick.com
 */
-//App::import('Vendor', 'CloudFiles.php-cloudfiles/cloudfiles');
 App::import('Vendor', 'CloudFiles.php-opencloud/lib/php-opencloud');
 class CloudFiles extends Object {
-	
+
 	/**
 	* Configuration loaded from app/Config/cloud_files.php
 	* @var array
 	* @access public
 	*/
 	public static $configs = array();
-	
+
 	/**
 	* Connection object
 	* @var \OpenCloud\RackSpace
 	* @access public
 	*/
 	public static $Connection = null;
-	
+
 	/**
 	* ObjectStore Object
 	* @var ObjectStore
 	* @access public
 	*/
 	public static $ObjectStore = null;
-	
+
 	/**
 	* Shorthand server to full AuthURL
 	* @var array
@@ -43,15 +42,15 @@ class CloudFiles extends Object {
 		'US' => RACKSPACE_US,
 		'UK' => RACKSPACE_UK,
 	);
-	
+
 	/**
 	* Errors
 	* @var array
 	* @access public
 	*/
 	public static $errors = array();
-	
-	
+
+
 	/**
 	* Getting a configuration option.
 	* @param key to search for
@@ -72,7 +71,7 @@ class CloudFiles extends Object {
 		}
 		return null;
 	}
-	
+
 	/**
 	* static method to upload a file to a specific container
 	* @param string full path to file on local machine (required)
@@ -100,7 +99,7 @@ class CloudFiles extends Object {
 			'filename' => null,
 			'overwrite' => true,
 		),$options);
-		
+
 		if(empty($file_path) || empty($container)){
 			self::error("File path and container required.");
 			return false;
@@ -131,7 +130,7 @@ class CloudFiles extends Object {
 					array('name' => $options['filename']),
 					$file_path
 				);
-				
+
 				if($retval = $Object->PublicURL()){
 					return $retval;
 				}
@@ -140,7 +139,7 @@ class CloudFiles extends Object {
 		}
 		return false;
 	}
-	
+
 	/**
 	* Check if a file exists in a container
 	* @param string container
@@ -166,7 +165,7 @@ class CloudFiles extends Object {
 		));
 		return !empty($result);
 	}
-	
+
 	/**
 	* Download a file from a specific container to a local file
 	* @param string filename on rackspace (required)
@@ -192,7 +191,7 @@ class CloudFiles extends Object {
 		if(!self::connect()){
 			return false;
 		}
-		
+
 		$Container = self::$ObjectStore->Container($container);
 		if(is_object($Container)){
 			$Object = $Container->DataObject($filename);
@@ -202,7 +201,7 @@ class CloudFiles extends Object {
 		}
 		return false;
 	}
-	
+
 	/**
 	* Delete a file from a container
 	* @param string filename to delete (required)
@@ -228,7 +227,7 @@ class CloudFiles extends Object {
 		}
 		return false;
 	}
-	
+
 	/**
 	* Return a list of what is in a container
 	* @param string container (required)
@@ -256,7 +255,7 @@ class CloudFiles extends Object {
 			'marker' => '',
 			'prefix' => '',
 		), $options);
-		
+
 		$Container = self::$ObjectStore->Container($container);
 		$retval = array();
 		if(is_object($Container)){
@@ -271,7 +270,7 @@ class CloudFiles extends Object {
 		}
 		return $retval;
 	}
-	
+
 	/**
 	* List all containers
 	* @param array options array
@@ -281,7 +280,7 @@ class CloudFiles extends Object {
 	* @return array of container names
 	* @throws CloudFilesException
 	* @throws InvalidResponseException
-	* @throws AuthenticationException 
+	* @throws AuthenticationException
 	*/
 	public static function listContainers($options = array()){
 		$options = array_merge(array(
@@ -292,7 +291,7 @@ class CloudFiles extends Object {
 		if(!self::connect()){
 			return false;
 		}
-		
+
 		$containers = self::$ObjectStore->ContainerList();
 		$retval = array();
 		while($container = $containers->Next()){
@@ -304,7 +303,7 @@ class CloudFiles extends Object {
 		}
 		return $retval;
 	}
-	
+
 	/**
 	* Create a container
 	* @param string $container_name container name (required)
@@ -326,7 +325,7 @@ class CloudFiles extends Object {
 		}
 		return $Container;
 	}
-	
+
 	/**
 	* Delete a container
 	* @param string $container_name container name (required)
@@ -352,7 +351,7 @@ class CloudFiles extends Object {
 		}
 		return false;
 	}
-	
+
 	/**
 	* Get URL of an object
 	* @param string filename (required)
@@ -381,7 +380,7 @@ class CloudFiles extends Object {
 		}
 		return null;
 	}
-	
+
 	/**
 	* Get Stream URL of an object
 	* @param string filename (required)
@@ -395,13 +394,13 @@ class CloudFiles extends Object {
 	public static function stream($filename = null, $container = null){
 		return self::url($filename, $container);
 	}
-	
+
 	/**
 	* Connect to the CloudFiles Service
 	* @return boolean success
 	* @throws CloudFilesException
 	* @throws AuthenticationException
-	* @throws InvalidResponseException 
+	* @throws InvalidResponseException unexpected response 
 	*/
 	public static function connect(){
 		if(self::$Connection == null && $server = self::$server_to_auth_map[self::getConfig('server')]){
@@ -418,11 +417,11 @@ class CloudFiles extends Object {
 		}
 		return $retval;
 	}
-	
+
 	/**
 	* Append a message to the static class error stream
 	* @param string message
-	* @throws CloudFilesException 
+	* @throws CloudFilesException exception
 	*/
 	private static function error($message){
 		self::$errors[] = $message;
