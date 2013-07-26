@@ -82,9 +82,9 @@ class CloudFiles extends Object {
 	*   - overwrite: if false, will check if the file exists first (optional) (default true).
 	* @return mixed false if failure, string public_uri if public, or true if success and not public
 	* @example CloudFiles::upload('/home/nwb/image.jpg', 'container_name');
-	* @throws CloudFilesException
-	* @throws IOException
-	* @throws SyntaxException
+	* @throws CloudFilesException exception
+	* @throws IOException exception
+	* @throws SyntaxException exception
 	* @throws NoSuchContainerException thrown if no remote Container
 	* @throws InvalidResponseException unexpected response
 	*/
@@ -146,8 +146,8 @@ class CloudFiles extends Object {
 	* @param string filename
 	* @return boolean if the file exists.
 	* @example CloudFiles::exists('container', 'image.jpg');
-	* @throws CloudFilesException
-	* @throws SyntaxException
+	* @throws CloudFilesException exception
+	* @throws SyntaxException exception
 	* @throws NoSuchContainerException thrown if no remote Container
 	* @throws InvalidResponseException unexpected response
 	*/
@@ -174,8 +174,8 @@ class CloudFiles extends Object {
 	* @param boolean overwrite localfile if already exists (default true)
 	* @return boolean success
 	* @example CloudFiles::download('image.jpg', 'container_name', '/home/nwb/image.jpg');
-	* @throws CloudFilesException
-	* @throws IOException
+	* @throws CloudFilesException exception
+	* @throws IOException exception
 	* @throws NoSuchContainerException thrown if no remote Container
 	* @throws InvalidResponseException unexpected response
 	*/
@@ -208,7 +208,7 @@ class CloudFiles extends Object {
 	* @param string container to delete filename from (required)
 	* @return boolean success
 	* @example CloudFiles::delete('image.jpg', 'container_name');
-	* @throws CloudFilesException
+	* @throws CloudFilesException exception
 	* @throws NoSuchContainerException thrown if no remote Container
 	* @throws InvalidResponseException unexpected response
 	*/
@@ -238,9 +238,9 @@ class CloudFiles extends Object {
 	* @return mixed false on failure or array of string names
 	* @example CloudFiles::ls('container_name');
 	* @example CloudFiles::ls('container_name', array('path' => 'animals/dogs', 'limit' => 10));
-	* @throws CloudFilesException
-	* @throws InvalidResponseException
-	* @throws SyntaxException
+	* @throws CloudFilesException exception
+	* @throws InvalidResponseException exception
+	* @throws SyntaxException exception
 	* @throws NoSuchContainerException thrown if no remote Container
 	*/
 	public static function ls($container = null, $options = array()){
@@ -278,9 +278,9 @@ class CloudFiles extends Object {
 	*  - limit       (int)  : only return limit containers (default everything)
 	*  - only_public (bool) : only show public containers
 	* @return array of container names
-	* @throws CloudFilesException
-	* @throws InvalidResponseException
-	* @throws AuthenticationException
+	* @throws CloudFilesException exception
+	* @throws InvalidResponseException exception
+	* @throws AuthenticationException exception
 	*/
 	public static function listContainers($options = array()){
 		$options = array_merge(array(
