@@ -408,7 +408,6 @@ class CloudFiles extends Object {
 				'username' => self::getConfig('username'),
 				'apiKey' => self::getConfig('api_key')
 			));
-			//self::$Connection->setDefaults('ObjectStore', 'cloudFiles', self::getConfig('region'), self::getConfig('url_type'));
 			self::$ObjectStore = self::$Connection->ObjectStore('cloudFiles', self::getConfig('region'), self::getConfig('url_type'));
 		}
 		$retval = !!(self::$Connection);
