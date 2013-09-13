@@ -60,7 +60,9 @@ class CloudFiles extends Object {
 	*/
 	public static function getConfig($key = null){
 		if(empty(self::$configs)){
-			Configure::load('cloud_files');
+			if (!Configure::check('CloudFiles')) {
+				Configure::load('cloud_files');
+			}
 			self::$configs = Configure::read('CloudFiles');
 		}
 		if(empty($key)){
