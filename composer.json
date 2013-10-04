@@ -19,7 +19,7 @@
 	"require": {
 		"php": ">=5.3.0",
 		"composer/installers": "*",
-		"rackspace/php-opencloud": ">=1.*"
+		"rackspace/php-opencloud": "1.*"
 	},
 	"extra": {
 		"branch-alias": {
