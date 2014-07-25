@@ -2,7 +2,7 @@
 App::uses('CloudFiles','CloudFiles.Lib');
 class CloudFilesTest extends CakeTestCase {
 	
-	function startTest(){
+	function startTest($method){
 		CloudFiles::$errors = array();
 	}
 	
@@ -105,5 +105,12 @@ class CloudFilesTest extends CakeTestCase {
 		$this->assertTrue($retval);
 		$containers = CloudFiles::listContainers();
 		$this->assertFalse(in_array('delme', array_keys($containers)));
+	}
+	
+	function test_updateheaders() {
+		$result = CloudFiles::updateHeaders('jessica_k.png', 'images', array(
+			'X-Object-Meta-FOO' => 'http://www.healthyhearing.com'
+		));
+		$this->assertTrue(!empty($result));
 	}
 }

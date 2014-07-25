@@ -59,16 +59,16 @@ class CloudFiles extends Object {
 	* @example CloudFiles::getConfig('username');
 	*/
 	public static function getConfig($key = null){
-		if(empty(self::$configs)){
+		if (empty(self::$configs)) {
 			if (!Configure::check('CloudFiles')) {
 				Configure::load('cloud_files');
 			}
 			self::$configs = Configure::read('CloudFiles');
 		}
-		if(empty($key)){
+		if (empty($key)) {
 			return self::$configs;
 		}
-		if(isset(self::$configs[$key])){
+		if (isset(self::$configs[$key])) {
 			return self::$configs[$key];
 		}
 		return null;
@@ -90,8 +90,8 @@ class CloudFiles extends Object {
 	* @throws NoSuchContainerException thrown if no remote Container
 	* @throws InvalidResponseException unexpected response
 	*/
-	public static function upload($file_path = null, $container = null, $options = array()){
-		if(is_string($options)){
+	public static function upload($file_path = null, $container = null, $options = array(), $extra_headers = array()) {
+		if (is_string($options)) {
 			$mimetype = $options;
 			$options = array();
 			$options['mimetype'] = $mimetype;
@@ -102,38 +102,41 @@ class CloudFiles extends Object {
 			'overwrite' => true,
 		),$options);
 
-		if(empty($file_path) || empty($container)){
+		if (empty($file_path) || empty($container)) {
 			self::error("File path and container required.");
 			return false;
 		}
-		if(!file_exists($file_path)){
+		if (!file_exists($file_path)) {
 			self::error("File does not exist.");
 			return false;
 		}
-		if(!self::connect()){
+		if (!self::connect()) {
 			return false;
 		}
-		if(!$options['filename']){
+		if (!$options['filename']) {
 			$options['filename'] = basename($file_path);
 		}
 		//Check if file already exists unless we're overwriting (default true)
-		if(!$options['overwrite'] && self::exists($container, $options['filename'])){
+		if (!$options['overwrite'] && self::exists($container, $options['filename'])) {
 			return true;
 		}
 		// upload file to Rackspace
 		$Container = self::$ObjectStore->Container($container);
-		if($options['filename'] && is_object($Container)){
+		if ($options['filename'] && is_object($Container)) {
 			$Object = $Container->DataObject();
-			if(is_object($Object)){
-				if($options['mimetype']){
+			if (is_object($Object)) {
+				if ($options['mimetype']) {
 					$Object->content_type = $options['mimetype'];
+				}
+				if (!empty($extra_headers)) {
+					$Object->extra_headers = $extra_headers;
 				}
 				$Object->Create(
 					array('name' => $options['filename']),
 					$file_path
 				);
 
-				if($retval = $Object->PublicURL()){
+				if ($retval = $Object->PublicURL()) {
 					return $retval;
 				}
 				return true;
@@ -154,11 +157,11 @@ class CloudFiles extends Object {
 	* @throws InvalidResponseException unexpected response
 	*/
 	public static function exists($container = null, $filename = null){
-		if(empty($filename) || empty($container)){
+		if (empty($filename) || empty($container)) {
 			self::error("Filename and container required.");
 			return false;
 		}
-		if(!self::connect()){
+		if (!self::connect()) {
 			return false;
 		}
 		$result = self::ls($container, array(
@@ -182,22 +185,22 @@ class CloudFiles extends Object {
 	* @throws InvalidResponseException unexpected response
 	*/
 	public static function download($filename = null, $container = null, $localpath = null, $overwrite = true){
-		if(empty($localpath) || empty($filename) || empty($container)){
+		if (empty($localpath) || empty($filename) || empty($container)) {
 			self::error("File path and container required.");
 			return false;
 		}
-		if(file_exists($localpath) && !$overwrite){
+		if (file_exists($localpath) && !$overwrite) {
 			self::error("File exists already exists");
 			return false;
 		}
-		if(!self::connect()){
+		if (!self::connect()) {
 			return false;
 		}
 
 		$Container = self::$ObjectStore->Container($container);
-		if(is_object($Container)){
+		if (is_object($Container)) {
 			$Object = $Container->DataObject($filename);
-			if(is_object($Object)){
+			if (is_object($Object)) {
 				return $Object->SaveToFilename($localpath);
 			}
 		}
@@ -215,21 +218,42 @@ class CloudFiles extends Object {
 	* @throws InvalidResponseException unexpected response
 	*/
 	public static function delete($filename = null, $container = null){
-		if(empty($filename) || empty($container)){
+		if (empty($filename) || empty($container)) {
 			self::error("Filename and container required.");
 			return false;
 		}
-		if(!self::connect()){
+		if (!self::connect()) {
 			return false;
 		}
 		$Container = self::$ObjectStore->Container($container);
 		$Object = $Container->DataObject($filename);
-		if(is_object($Object)){
+		if (is_object($Object)) {
 			return !!($Object->Delete());
 		}
 		return false;
 	}
 
+	/**
+	* Update the headers of an object.
+	* @param string filename
+	* @param string container
+	* @param array headers to set
+	*/
+	public static function updateHeaders($filename = null, $container = null, $headers = array()) {
+		if (empty($filename) || empty($container)) {
+			self::error("Filename and container required.");
+			return false;
+		}
+		if (!self::connect()) {
+			return false;
+		}
+		$Container = self::$ObjectStore->Container($container);
+		$Object = $Container->DataObject($filename);
+		if (is_object($Object)) {
+			return $Object->UpdateMetadata(array('extra_headers' => $headers));
+		}
+		return false;
+	}
 	/**
 	* Return a list of what is in a container
 	* @param string container (required)
@@ -245,29 +269,33 @@ class CloudFiles extends Object {
 	* @throws SyntaxException exception
 	* @throws NoSuchContainerException thrown if no remote Container
 	*/
-	public static function ls($container = null, $options = array()){
-		if(empty($container)){
+	public static function ls($container = null, $options = array()) {
+		if (empty($container)) {
 			self::error("container name is required.");
 			return false;
 		}
-		if(!self::connect()){
+		if (!self::connect()) {
 			return false;
 		}
 		$options = array_merge(array(
 			'marker' => '',
 			'prefix' => '',
+			'headers' => false,
 		), $options);
 
 		$Container = self::$ObjectStore->Container($container);
 		$retval = array();
-		if(is_object($Container)){
+		if (is_object($Container)) {
 			$objects = $Container->ObjectList($options);
-			while($object = $objects->Next()){
+			while ($object = $objects->Next()) {
 				$retval[$object->Name()] = array(
 					'name' => $object->Name(),
 					'bytes' => $object->bytes,
-					'content_type' => $object->content_type
+					'content_type' => $object->content_type,
 				);
+				if ($options['headers']) {
+					$retval[$object->Name()]['headers'] = $object->MetadataHeaders();
+				}
 			}
 		}
 		return $retval;
@@ -284,19 +312,19 @@ class CloudFiles extends Object {
 	* @throws InvalidResponseException exception
 	* @throws AuthenticationException exception
 	*/
-	public static function listContainers($options = array()){
+	public static function listContainers($options = array()) {
 		$options = array_merge(array(
 			'limit' => 0,
 			'marker' => null,
 			'only_public' => false
 		), $options);
-		if(!self::connect()){
+		if (!self::connect()) {
 			return false;
 		}
 
 		$containers = self::$ObjectStore->ContainerList();
 		$retval = array();
-		while($container = $containers->Next()){
+		while ($container = $containers->Next()) {
 			$retval[$container->name] = array(
 				'name' => $container->name,
 				'count' => $container->count,
@@ -313,16 +341,16 @@ class CloudFiles extends Object {
 	* @throws SyntaxException invalid name
 	* @throws InvalidResponseException unexpected response
 	*/
-	public static function createContainer($container = null){
-		if(empty($container)){
+	public static function createContainer($container = null) {
+		if (empty($container)) {
 			self::error("container name is required.");
 			return false;
 		}
-		if(!self::connect()){
+		if (!self::connect()) {
 			return false;
 		}
 		$Container = self::$ObjectStore->Container();
-		if(is_object($Container)){
+		if (is_object($Container)) {
 			$Container->Create(array('name' => $container));
 		}
 		return $Container;
@@ -340,15 +368,15 @@ class CloudFiles extends Object {
 	* @throws NoSuchContainerException remote container does not exist
 	*/
 	public static function deleteContainer($container = null){
-		if(empty($container)){
+		if (empty($container)) {
 			self::error("container name is required.");
 			return false;
 		}
-		if(!self::connect()){
+		if (!self::connect()) {
 			return false;
 		}
 		$Container = self::$ObjectStore->Container($container);
-		if(is_object($Container)){
+		if (is_object($Container)) {
 			return $Container->Delete();
 		}
 		return false;
@@ -366,17 +394,17 @@ class CloudFiles extends Object {
 	* @throws InvalidResponseException unexpected response
 	*/
 	public static function url($filename = null, $container = null){
-		if(empty($filename) || empty($container)){
+		if (empty($filename) || empty($container)) {
 			self::error("Filename and container required.");
 			return false;
 		}
-		if(!self::connect()){
+		if (!self::connect()) {
 			return false;
 		}
 		$Container = self::$ObjectStore->Container($container);
-		if(is_object($Container)){
+		if (is_object($Container)) {
 			$Object = $Container->DataObject($filename);
-			if(is_object($Object)){
+			if (is_object($Object)) {
 				return $Object->PublicURL();
 			}
 		}
@@ -405,7 +433,7 @@ class CloudFiles extends Object {
 	* @throws InvalidResponseException unexpected response 
 	*/
 	public static function connect(){
-		if(self::$Connection == null && $server = self::$server_to_auth_map[self::getConfig('server')]){
+		if (self::$Connection == null && $server = self::$server_to_auth_map[self::getConfig('server')]) {
 			self::$Connection = new \OpenCloud\Rackspace($server, array(
 				'username' => self::getConfig('username'),
 				'apiKey' => self::getConfig('api_key')
@@ -413,7 +441,7 @@ class CloudFiles extends Object {
 			self::$ObjectStore = self::$Connection->ObjectStore('cloudFiles', self::getConfig('region'), self::getConfig('url_type'));
 		}
 		$retval = !!(self::$Connection);
-		if(!$retval){
+		if (!$retval) {
 			self::error("Unable to connect to rackspace, check your settings.");
 		}
 		return $retval;
